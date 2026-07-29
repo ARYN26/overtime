@@ -8,13 +8,16 @@
 // Until these are filled in, the site falls back to the plain links in the HTML.
 
 const SHOPIFY_CONFIG = {
-  domain: 'REPLACE_ME.myshopify.com',
-  storefrontAccessToken: 'REPLACE_ME',
-  productId: 'REPLACE_ME',
+  domain: 'y9t80a-dv.myshopify.com',
+  storefrontAccessToken: '398e08a9555db8674696dc81e1986bf2',
+  productId: '9233890672861',
   // Optional: where the "Subscribe & Save" purchase happens (Shopify-hosted
   // product page with the subscription widget). Leave '' to auto-use the
   // store's product page.
-  subscribeUrl: '',
+  // Hardcoded to the permanent myshopify.com URL: the store's primary domain is
+  // currently overtimestrips.com (the old site), which will stop pointing at
+  // Shopify once this static site takes over the domain.
+  subscribeUrl: 'https://y9t80a-dv.myshopify.com/products/nasal-strips',
 };
 
 (function () {
