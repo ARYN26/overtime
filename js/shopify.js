@@ -1,23 +1,17 @@
 // OVERTIME — Shopify Buy Button integration
 //
-// SETUP: paste the three values from your Buy Button embed code below.
-// (Shopify admin → Sales channels → Buy Button → create a Buy Button for the
-// product → "Copy code" → the snippet contains domain, storefrontAccessToken,
-// and the product id.)
+// Purchase options are prepaid supply bundles (everything ships at once):
+//   Single Pack $16.99 · 3-Month Supply $42.99 · 6-Month Supply $79.99 · Annual Supply $139.99
 //
-// Until these are filled in, the site falls back to the plain links in the HTML.
+// Each .variant-pills .pill carries data-variant matching a Shopify variant
+// title on the product. Until a variant exists in Shopify, its pill's Add to
+// Cart falls back to the button's plain href (the Shopify product page), so a
+// missing variant can never charge the wrong amount.
 
 const SHOPIFY_CONFIG = {
   domain: 'y9t80a-dv.myshopify.com',
   storefrontAccessToken: '398e08a9555db8674696dc81e1986bf2',
   productId: '9233890672861',
-  // Optional: where the "Subscribe & Save" purchase happens (Shopify-hosted
-  // product page with the subscription widget). Leave '' to auto-use the
-  // store's product page.
-  // Hardcoded to the permanent myshopify.com URL: the store's primary domain is
-  // currently overtimestrips.com (the old site), which will stop pointing at
-  // Shopify once this static site takes over the domain.
-  subscribeUrl: 'https://y9t80a-dv.myshopify.com/products/nasal-strips',
 };
 
 (function () {
@@ -51,8 +45,7 @@ const SHOPIFY_CONFIG = {
       : SHOPIFY_CONFIG.productId;
 
     let cart = null;
-    let oneTimeVariant = null;
-    let subscribeUrl = SHOPIFY_CONFIG.subscribeUrl;
+    let variantByTitle = null;
 
     ShopifyBuy.UI.onReady(client).then((ui) => {
       ui.createComponent('cart', {
@@ -88,40 +81,39 @@ const SHOPIFY_CONFIG = {
       }).then((component) => { cart = component; });
     });
 
-    // Live product data: real variant for the cart + real prices in the UI
+    // Live product data: map each pill to its Shopify variant and show real prices
     client.product.fetch(productGid).then((product) => {
-      oneTimeVariant = product.variants[0];
-      if (!subscribeUrl) {
-        subscribeUrl = product.onlineStoreUrl
-          || 'https://' + SHOPIFY_CONFIG.domain + '/products/' + product.handle;
+      const variants = product.variants || [];
+      const byTitle = {};
+      variants.forEach((v) => { byTitle[v.title] = v; });
+      // A store that hasn't set up bundle variants yet has one "Default Title"
+      // variant — treat it as the single pack.
+      if (!byTitle['Single Pack'] && variants[0] && variants[0].title === 'Default Title') {
+        byTitle['Single Pack'] = variants[0];
       }
+      variantByTitle = byTitle;
 
-      const price = Number(variantPrice(oneTimeVariant));
       document.querySelectorAll('.product-card').forEach((card) => {
-        const pills = card.querySelectorAll('.variant-pills .pill');
-        if (pills[0]) pills[0].dataset.price = money(price);
-        if (pills[1]) pills[1].dataset.price = money(price * 0.75);
+        card.querySelectorAll('.variant-pills .pill[data-variant]').forEach((pill) => {
+          const variant = byTitle[pill.dataset.variant];
+          if (variant) pill.dataset.price = money(variantPrice(variant));
+        });
         const active = card.querySelector('.variant-pills .pill.active');
         const priceEl = card.querySelector('#prod-price');
-        if (active && priceEl) priceEl.textContent = active.dataset.price;
+        if (active && priceEl && active.dataset.price) priceEl.textContent = active.dataset.price;
       });
     }).catch((err) => console.error('Shopify product fetch failed:', err));
 
     cartButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const card = btn.closest('.product-card');
-        const pills = card ? card.querySelectorAll('.variant-pills .pill') : [];
-        const subscribeSelected = pills[1] && pills[1].classList.contains('active');
-
-        if (subscribeSelected && subscribeUrl) {
-          e.preventDefault();
-          window.location.href = subscribeUrl;
-          return;
-        }
-        if (cart && oneTimeVariant) {
+        const active = card ? card.querySelector('.variant-pills .pill.active') : null;
+        const wanted = active ? active.dataset.variant : 'Single Pack';
+        const variant = variantByTitle && variantByTitle[wanted];
+        if (cart && variant) {
           e.preventDefault();
           cart.open();
-          cart.addVariantToCart(oneTimeVariant, 1);
+          cart.addVariantToCart(variant, 1);
         }
         // else: fall through to the button's href fallback
       });
