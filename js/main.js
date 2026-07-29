@@ -98,39 +98,5 @@ if (quoteEls.length > 1) {
   }, 2500);
 }
 
-// Auth page: tabs + first-signup discount modal after 5s
-const authForm = document.getElementById('auth-form');
-if (authForm) {
-  const tabs = document.querySelectorAll('.auth-tab');
-  const submitBtn = authForm.querySelector('button[type="submit"]');
-  const nameField = document.getElementById('name-field');
-  let mode = 'login';
-
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      mode = tab.dataset.mode;
-      nameField.style.display = mode === 'signup' ? '' : 'none';
-      submitBtn.textContent = mode === 'signup' ? 'Create account' : 'Log in';
-    });
-  });
-
-  authForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    localStorage.setItem('overtime_user', '1');
-    submitBtn.textContent = mode === 'signup' ? 'Welcome to the team ✓' : 'Logged in ✓';
-    // First-time signup → discount modal after 5 seconds
-    if (mode === 'signup' && !localStorage.getItem('overtime_discount_shown')) {
-      localStorage.setItem('overtime_discount_shown', '1');
-      setTimeout(() => {
-        document.getElementById('discount-modal').classList.add('show');
-      }, 5000);
-    }
-  });
-
-  const modal = document.getElementById('discount-modal');
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal || e.target.closest('.modal-close')) modal.classList.remove('show');
-  });
-}
+// Auth: account management is handled by Shopify's hosted customer accounts
+// (linked from login.html) — the site never collects credentials itself.

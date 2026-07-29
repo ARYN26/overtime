@@ -1,8 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; media-src 'self' https://assets.mixkit.co; connect-src 'self' https://y9t80a-dv.myshopify.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Login — OVERTIME</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,42 +31,15 @@
 
   <div class="auth-wrap" style="background-image: url('assets/img/real/banner.png');">
     <div class="auth-card">
-      <h2 style="text-align:center;font-size:1.5rem;">Welcome back</h2>
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-mode="login" type="button">Log in</button>
-        <button class="auth-tab" data-mode="signup" type="button">Sign up</button>
-      </div>
-      <form id="auth-form">
-        <div class="field" id="name-field" style="display:none;">
-          <label for="name">Name</label>
-          <input type="text" id="name" placeholder="Your name" autocomplete="name">
-        </div>
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="you@email.com" autocomplete="email" required>
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
-        </div>
-        <button class="btn btn-blue" type="submit">Log in</button>
-      </form>
-      <p class="auth-note">By continuing you agree to our terms. New here? Hit <strong>Sign up</strong> — there's something in it for you.</p>
+      <h2 style="text-align:center;font-size:1.5rem;">Your account</h2>
+      <p style="text-align:center;">Track orders and manage your details through our secure checkout account — no separate password to remember.</p>
+      <a class="btn btn-blue" href="https://y9t80a-dv.myshopify.com/account" style="display:block;text-align:center;">Log in to your account</a>
+      <p class="auth-note">You'll get a one-time code by email — the same secure login used at checkout.</p>
+      <hr style="border:none;border-top:1px solid rgba(14,17,22,0.1);margin:22px 0;">
+      <p style="text-align:center;margin:0;">First time here? Use code <strong>OT10</strong> at checkout for <strong>10% off</strong> your first order.</p>
     </div>
   </div>
 
-  <!-- First-time signup discount modal -->
-  <div class="modal-overlay" id="discount-modal">
-    <div class="modal">
-      <button class="modal-close" aria-label="Close">✕</button>
-      <h3>Welcome to the team</h3>
-      <div class="discount">10% OFF</div>
-      <p style="color:var(--text-dim);max-width:none;">Your first order, on us to start. Use this code at checkout:</p>
-      <div class="code">OT10</div><br>
-      <a class="btn btn-blue" href="shop.html">Claim &amp; Shop</a>
-    </div>
-  </div>
-
-  <script src="js/main.js?v=7"></script>
+  <script src="js/main.js?v=8"></script>
 </body>
 </html>
