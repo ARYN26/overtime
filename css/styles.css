@@ -442,6 +442,7 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   transition: all 0.15s ease;
 }
 .pill:hover { border-color: rgba(14, 17, 22, 0.4); color: var(--text); }
+.pill:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
 .pill.active { background: var(--dark); border-color: var(--dark); color: #fff; }
 .benefits-list { list-style: none; padding: 0; margin: 4px 0 26px; }
 .benefits-list li {

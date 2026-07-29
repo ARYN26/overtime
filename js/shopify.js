@@ -4,9 +4,9 @@
 //   Single Pack $16.99 · 3-Month Supply $42.99 · 6-Month Supply $79.99 · Annual Supply $139.99
 //
 // Each .variant-pills .pill carries data-variant matching a Shopify variant
-// title on the product. Until a variant exists in Shopify, its pill's Add to
-// Cart falls back to the button's plain href (the Shopify product page), so a
-// missing variant can never charge the wrong amount.
+// title on the product. Pills whose variant is missing or out of stock are
+// disabled, so a missing variant can never charge the wrong amount or send
+// the buyer to the Shopify-hosted (old-theme) product page.
 
 const SHOPIFY_CONFIG = {
   domain: 'y9t80a-dv.myshopify.com',
@@ -45,10 +45,14 @@ const SHOPIFY_CONFIG = {
       : SHOPIFY_CONFIG.productId;
 
     let cart = null;
+    let uiRef = null;
     let variantByTitle = null;
 
     ShopifyBuy.UI.onReady(client).then((ui) => {
-      ui.createComponent('cart', {
+      uiRef = ui;
+      // createComponent returns a promise in some SDK builds and undefined in
+      // others — resolve either way, then fall back to the UI's registry.
+      const created = ui.createComponent('cart', {
         options: {
           cart: {
             popup: false,
@@ -78,7 +82,10 @@ const SHOPIFY_CONFIG = {
             styles: { variantTitle: { color: '#5a636e' }, title: { color: '#0e1116' } },
           },
         },
-      }).then((component) => { cart = component; });
+      });
+      Promise.resolve(created).then((component) => {
+        cart = component || (ui.components && ui.components.cart && ui.components.cart[0]) || null;
+      });
     });
 
     // Live product data: map each pill to its Shopify variant and show real prices
@@ -97,6 +104,8 @@ const SHOPIFY_CONFIG = {
         card.querySelectorAll('.variant-pills .pill[data-variant]').forEach((pill) => {
           const variant = byTitle[pill.dataset.variant];
           if (variant) pill.dataset.price = money(variantPrice(variant));
+          // No variant in Shopify yet, or out of stock → not clickable
+          pill.disabled = !variant || variant.available === false;
         });
         const active = card.querySelector('.variant-pills .pill.active');
         const priceEl = card.querySelector('#prod-price');
@@ -104,18 +113,23 @@ const SHOPIFY_CONFIG = {
       });
     }).catch((err) => console.error('Shopify product fetch failed:', err));
 
+    // Once the SDK is up, purchases stay on this site — never navigate to the
+    // Shopify-hosted (old-theme) product page. The href only serves as a
+    // no-JS / SDK-blocked last resort.
     cartButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         const card = btn.closest('.product-card');
         const active = card ? card.querySelector('.variant-pills .pill.active') : null;
         const wanted = active ? active.dataset.variant : 'Single Pack';
         const variant = variantByTitle && variantByTitle[wanted];
-        if (cart && variant) {
-          e.preventDefault();
+        if (!cart && uiRef && uiRef.components && uiRef.components.cart) {
+          cart = uiRef.components.cart[0] || null;
+        }
+        if (cart && variant && variant.available !== false) {
           cart.open();
           cart.addVariantToCart(variant, 1);
         }
-        // else: fall through to the button's href fallback
       });
     });
   });
