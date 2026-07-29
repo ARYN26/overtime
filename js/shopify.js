@@ -1,135 +1,115 @@
-// OVERTIME — Shopify Buy Button integration
+// OVERTIME — Shopify Storefront Cart API integration (Headless channel)
 //
-// Purchase options are prepaid supply bundles (everything ships at once):
-//   Single Pack $16.99 · 3-Month Supply $42.99 · 6-Month Supply $79.99 · Annual Supply $139.99
+// Purchase options are prepaid supply bundles built with the Shopify Bundles
+// app, so selling a bundle automatically deducts the right number of single
+// packs from inventory. Each .variant-pills .pill carries data-variant, which
+// maps to a Shopify product below. Add to Cart creates a cart via the
+// Storefront API and sends the buyer straight to the branded Shopify checkout.
 //
-// Each .variant-pills .pill carries data-variant matching a Shopify variant
-// title on the product. Pills whose variant is missing or out of stock are
-// disabled, so a missing variant can never charge the wrong amount or send
-// the buyer to the Shopify-hosted (old-theme) product page.
+// Pills whose product is missing or out of stock are disabled — the buyer can
+// never be charged a wrong amount or get dumped on the old-theme product page.
 
 const SHOPIFY_CONFIG = {
   domain: 'y9t80a-dv.myshopify.com',
-  storefrontAccessToken: '398e08a9555db8674696dc81e1986bf2',
-  productId: '9233890672861',
+  storefrontAccessToken: 'b69c6202feabcc8eabdb1377893d5e41',
+  apiVersion: '2024-04',
+  // data-variant key on each pill → Shopify product (and variant title when
+  // the product has more than one variant)
+  offers: {
+    'Single Pack':    { handle: 'nasal-strips', variantTitle: 'Single Pack' },
+    '3-Month Supply': { handle: 'nasal-strips-3-month-supply' },
+    '6-Month Supply': { handle: 'nasal-strips-6-month-supply' },
+    'Annual Supply':  { handle: 'nasal-strips-annual-supply' },
+  },
 };
 
 (function () {
-  const configured = !Object.values(SHOPIFY_CONFIG).some((v) => String(v).includes('REPLACE_ME'));
   const cartButtons = document.querySelectorAll('[data-add-to-cart]');
-  if (!configured || !cartButtons.length) return;
+  if (!cartButtons.length) return;
 
-  const SDK_URL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
-  const BRAND = { blue: '#2f7bff', blueHot: '#4d9aff', font: '"Inter", sans-serif' };
-
+  const endpoint = 'https://' + SHOPIFY_CONFIG.domain + '/api/' + SHOPIFY_CONFIG.apiVersion + '/graphql.json';
   const money = (amount) => '$' + Number(amount).toFixed(2);
-  const variantPrice = (variant) => (variant.price && variant.price.amount) || variant.price;
 
-  function loadSdk(cb) {
-    if (window.ShopifyBuy && window.ShopifyBuy.UI) { cb(); return; }
-    const script = document.createElement('script');
-    script.src = SDK_URL;
-    script.async = true;
-    script.onload = cb;
-    document.head.appendChild(script);
+  function gql(query, variables) {
+    return fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': SHOPIFY_CONFIG.storefrontAccessToken,
+      },
+      body: JSON.stringify({ query: query, variables: variables }),
+    }).then((r) => r.json());
   }
 
-  loadSdk(() => {
-    const client = ShopifyBuy.buildClient({
-      domain: SHOPIFY_CONFIG.domain,
-      storefrontAccessToken: SHOPIFY_CONFIG.storefrontAccessToken,
-    });
+  // data-variant key → { merchandiseId, price, available }
+  const offerByKey = {};
 
-    const productGid = /^\d+$/.test(String(SHOPIFY_CONFIG.productId))
-      ? 'gid://shopify/Product/' + SHOPIFY_CONFIG.productId
-      : SHOPIFY_CONFIG.productId;
+  const PRODUCT_QUERY =
+    'query Offer($handle: String!) { product(handle: $handle) {' +
+    ' variants(first: 10) { edges { node { id title availableForSale price { amount } } } } } }';
 
-    let cart = null;
-    let uiRef = null;
-    let variantByTitle = null;
-
-    ShopifyBuy.UI.onReady(client).then((ui) => {
-      uiRef = ui;
-      // createComponent returns a promise in some SDK builds and undefined in
-      // others — resolve either way, then fall back to the UI's registry.
-      const created = ui.createComponent('cart', {
-        options: {
-          cart: {
-            popup: false,
-            text: { title: 'Your Cart', button: 'Checkout', total: 'Subtotal' },
-            styles: {
-              button: {
-                'font-family': BRAND.font,
-                'font-weight': '600',
-                'background-color': BRAND.blue,
-                'border-radius': '10px',
-                ':hover': { 'background-color': BRAND.blueHot },
-                ':focus': { 'background-color': BRAND.blueHot },
-              },
-            },
-          },
-          toggle: {
-            styles: {
-              toggle: {
-                'font-family': BRAND.font,
-                'background-color': BRAND.blue,
-                ':hover': { 'background-color': BRAND.blueHot },
-                ':focus': { 'background-color': BRAND.blueHot },
-              },
-            },
-          },
-          lineItem: {
-            styles: { variantTitle: { color: '#5a636e' }, title: { color: '#0e1116' } },
-          },
-        },
-      });
-      Promise.resolve(created).then((component) => {
-        cart = component || (ui.components && ui.components.cart && ui.components.cart[0]) || null;
-      });
-    });
-
-    // Live product data: map each pill to its Shopify variant and show real prices
-    client.product.fetch(productGid).then((product) => {
-      const variants = product.variants || [];
-      const byTitle = {};
-      variants.forEach((v) => { byTitle[v.title] = v; });
-      // A store that hasn't set up bundle variants yet has one "Default Title"
-      // variant — treat it as the single pack.
-      if (!byTitle['Single Pack'] && variants[0] && variants[0].title === 'Default Title') {
-        byTitle['Single Pack'] = variants[0];
+  Promise.all(Object.keys(SHOPIFY_CONFIG.offers).map((key) => {
+    const offer = SHOPIFY_CONFIG.offers[key];
+    return gql(PRODUCT_QUERY, { handle: offer.handle }).then((res) => {
+      const product = res.data && res.data.product;
+      if (!product) return;
+      const variants = product.variants.edges.map((e) => e.node);
+      // Match by title when specified; a lone "Default Title" variant counts too.
+      const variant = offer.variantTitle
+        ? variants.filter((v) => v.title === offer.variantTitle)[0]
+          || (variants.length === 1 && variants[0].title === 'Default Title' ? variants[0] : null)
+        : variants[0];
+      if (variant) {
+        offerByKey[key] = {
+          merchandiseId: variant.id,
+          price: Number(variant.price.amount),
+          available: variant.availableForSale,
+        };
       }
-      variantByTitle = byTitle;
-
-      document.querySelectorAll('.product-card').forEach((card) => {
-        card.querySelectorAll('.variant-pills .pill[data-variant]').forEach((pill) => {
-          const variant = byTitle[pill.dataset.variant];
-          if (variant) pill.dataset.price = money(variantPrice(variant));
-          // No variant in Shopify yet, or out of stock → not clickable
-          pill.disabled = !variant || variant.available === false;
-        });
-        const active = card.querySelector('.variant-pills .pill.active');
-        const priceEl = card.querySelector('#prod-price');
-        if (active && priceEl && active.dataset.price) priceEl.textContent = active.dataset.price;
+    }).catch((err) => console.error('Shopify product fetch failed:', offer.handle, err));
+  })).then(() => {
+    document.querySelectorAll('.product-card').forEach((card) => {
+      card.querySelectorAll('.variant-pills .pill[data-variant]').forEach((pill) => {
+        const offer = offerByKey[pill.dataset.variant];
+        if (offer) pill.dataset.price = money(offer.price);
+        pill.disabled = !offer || !offer.available;
       });
-    }).catch((err) => console.error('Shopify product fetch failed:', err));
+      const active = card.querySelector('.variant-pills .pill.active');
+      const priceEl = card.querySelector('#prod-price');
+      if (active && priceEl && active.dataset.price) priceEl.textContent = active.dataset.price;
+    });
+  });
 
-    // Once the SDK is up, purchases stay on this site — never navigate to the
-    // Shopify-hosted (old-theme) product page. The href only serves as a
-    // no-JS / SDK-blocked last resort.
-    cartButtons.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const card = btn.closest('.product-card');
-        const active = card ? card.querySelector('.variant-pills .pill.active') : null;
-        const wanted = active ? active.dataset.variant : 'Single Pack';
-        const variant = variantByTitle && variantByTitle[wanted];
-        if (!cart && uiRef && uiRef.components && uiRef.components.cart) {
-          cart = uiRef.components.cart[0] || null;
+  const CART_CREATE =
+    'mutation CartCreate($merchandiseId: ID!) {' +
+    ' cartCreate(input: { lines: [{ merchandiseId: $merchandiseId, quantity: 1 }] }) {' +
+    ' cart { checkoutUrl } userErrors { message } } }';
+
+  cartButtons.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const card = btn.closest('.product-card');
+      const active = card ? card.querySelector('.variant-pills .pill.active') : null;
+      const wanted = active ? active.dataset.variant : 'Single Pack';
+      const offer = offerByKey[wanted];
+      if (!offer || !offer.available || btn.classList.contains('is-loading')) return;
+
+      btn.classList.add('is-loading');
+      const label = btn.textContent;
+      btn.textContent = 'Heading to checkout…';
+
+      gql(CART_CREATE, { merchandiseId: offer.merchandiseId }).then((res) => {
+        const result = res.data && res.data.cartCreate;
+        if (result && result.cart && result.cart.checkoutUrl) {
+          window.location.href = result.cart.checkoutUrl;
+          return;
         }
-        if (cart && variant && variant.available !== false) {
-          cart.open();
-          cart.addVariantToCart(variant, 1);
-        }
+        const messages = result && result.userErrors && result.userErrors.map((u) => u.message).join(', ');
+        throw new Error(messages || 'cartCreate failed');
+      }).catch((err) => {
+        console.error('Shopify checkout failed:', err);
+        btn.classList.remove('is-loading');
+        btn.textContent = label;
       });
     });
   });
