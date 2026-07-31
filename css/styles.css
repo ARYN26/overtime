@@ -171,6 +171,9 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
 .nav-links a:not(.btn).active::after { transform: scaleX(1); }
 .nav-links a:hover, .nav-links a.active { color: var(--text); }
 .nav-links .btn { padding: 10px 24px; font-size: 0.8rem; }
+.nav-links a.btn-blue,
+.nav-links a.btn-blue:hover,
+.nav-links a.btn-blue.active { color: #fff; }
 .nav-toggle {
   display: none;
   background: none;
