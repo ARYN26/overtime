@@ -142,6 +142,13 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   color: var(--text);
 }
 .nav-logo .bolt { color: var(--blue); }
+.nav-logo { display: inline-flex; align-items: center; }
+.nav-logo img { height: 32px; width: auto; display: block; }
+/* light frosted nav shows the dark wordmark; transparent-over-hero shows the white one */
+.nav .logo-light { display: none; }
+body.has-hero .nav:not(.scrolled) .logo-light { display: block; }
+body.has-hero .nav:not(.scrolled) .logo-dark { display: none; }
+.footer .nav-logo img { height: 26px; }
 .nav-links {
   display: flex;
   align-items: center;
@@ -339,6 +346,25 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   transition: transform 0.5s ease;
 }
 .step:hover img { transform: scale(1.05); }
+.steps.steps-4 { grid-template-columns: repeat(4, 1fr); }
+.step-fig {
+  aspect-ratio: 4/3;
+  width: 100%;
+  border-radius: var(--radius);
+  background: var(--bg-tint);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+}
+.step-fig svg { width: 56px; height: 56px; }
+@media (max-width: 1024px) {
+  .steps.steps-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .steps.steps-4 { grid-template-columns: 1fr; }
+}
 .step-num {
   display: inline-flex;
   align-items: center;

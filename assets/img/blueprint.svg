@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-label="Overtime strip schematic: three flexible spring bands and bamboo charcoal fabric">
+  <defs>
+    <pattern id="fabricDots" width="14" height="14" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.6" fill="#c7ccd2"/>
+      <circle cx="11" cy="11" r="1.6" fill="#c7ccd2"/>
+    </pattern>
+    <clipPath id="stripClip">
+      <path d="M 315 485
+               C 250 485 200 535 200 600
+               C 200 665 250 715 315 715
+               C 385 715 430 690 600 690
+               C 770 690 815 715 885 715
+               C 950 715 1000 665 1000 600
+               C 1000 535 950 485 885 485
+               C 815 485 770 510 600 510
+               C 430 510 385 485 315 485 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="1200" fill="#ffffff"/>
+
+  <!-- blueprint grid -->
+  <g stroke="#2f7bff" stroke-width="1" opacity="0.07">
+    <path d="M 60 0 V 1200 M 120 0 V 1200 M 180 0 V 1200 M 240 0 V 1200 M 360 0 V 1200 M 420 0 V 1200 M 480 0 V 1200 M 540 0 V 1200 M 660 0 V 1200 M 720 0 V 1200 M 780 0 V 1200 M 840 0 V 1200 M 960 0 V 1200 M 1020 0 V 1200 M 1080 0 V 1200 M 1140 0 V 1200"/>
+    <path d="M 0 60 H 1200 M 0 120 H 1200 M 0 180 H 1200 M 0 240 H 1200 M 0 360 H 1200 M 0 420 H 1200 M 0 480 H 1200 M 0 540 H 1200 M 0 660 H 1200 M 0 720 H 1200 M 0 780 H 1200 M 0 840 H 1200 M 0 960 H 1200 M 0 1020 H 1200 M 0 1080 H 1200 M 0 1140 H 1200"/>
+  </g>
+  <g stroke="#2f7bff" stroke-width="1.4" opacity="0.12">
+    <path d="M 300 0 V 1200 M 600 0 V 1200 M 900 0 V 1200"/>
+    <path d="M 0 300 H 1200 M 0 600 H 1200 M 0 900 H 1200"/>
+  </g>
+
+  <!-- strip body: rounded ends, gentle waist -->
+  <path d="M 315 485
+           C 250 485 200 535 200 600
+           C 200 665 250 715 315 715
+           C 385 715 430 690 600 690
+           C 770 690 815 715 885 715
+           C 950 715 1000 665 1000 600
+           C 1000 535 950 485 885 485
+           C 815 485 770 510 600 510
+           C 430 510 385 485 315 485 Z"
+        fill="#eceff2" stroke="#0e1116" stroke-width="3"/>
+  <rect x="200" y="485" width="800" height="230" fill="url(#fabricDots)" clip-path="url(#stripClip)"/>
+
+  <!-- three flexible spring bands -->
+  <g clip-path="url(#stripClip)">
+    <g stroke="#2f7bff" stroke-width="5" stroke-linecap="round" fill="none">
+      <path d="M 262 536 C 400 556 500 560 600 560 C 700 560 800 556 938 536"/>
+      <path d="M 262 550 C 400 570 500 574 600 574 C 700 574 800 570 938 550"/>
+      <path d="M 260 593 H 940"/>
+      <path d="M 260 607 H 940"/>
+      <path d="M 262 664 C 400 644 500 640 600 640 C 700 640 800 644 938 664"/>
+      <path d="M 262 650 C 400 630 500 626 600 626 C 700 626 800 630 938 650"/>
+    </g>
+    <!-- cross-ticks suggesting spring flex -->
+    <g stroke="#2f7bff" stroke-width="3" opacity="0.85">
+      <path d="M 320 545 L 328 561 M 380 550 L 388 566 M 440 553 L 448 569 M 500 555 L 508 571 M 560 556 L 568 572 M 620 556 L 628 572 M 680 555 L 688 571 M 740 553 L 748 569 M 800 550 L 808 566 M 860 545 L 868 561"/>
+      <path d="M 320 593 L 328 607 M 380 593 L 388 607 M 440 593 L 448 607 M 500 593 L 508 607 M 560 593 L 568 607 M 620 593 L 628 607 M 680 593 L 688 607 M 740 593 L 748 607 M 800 593 L 808 607 M 860 593 L 868 607"/>
+      <path d="M 320 655 L 328 639 M 380 650 L 388 634 M 440 647 L 448 631 M 500 645 L 508 629 M 560 644 L 568 628 M 620 644 L 628 628 M 680 645 L 688 629 M 740 647 L 748 631 M 800 650 L 808 634 M 860 655 L 868 639"/>
+    </g>
+  </g>
+
+  <!-- callout: flexible spring bands -->
+  <g>
+    <circle cx="780" cy="560" r="7" fill="#2f7bff"/>
+    <path d="M 780 560 L 930 345 H 1120" stroke="#0e1116" stroke-width="2.5" fill="none"/>
+    <text x="1120" y="318" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" letter-spacing="2" fill="#0e1116">FLEXIBLE SPRING BANDS</text>
+  </g>
+
+  <!-- callout: bamboo charcoal fabric -->
+  <g>
+    <circle cx="380" cy="688" r="7" fill="#2f7bff"/>
+    <path d="M 380 688 L 240 890 H 90" stroke="#0e1116" stroke-width="2.5" fill="none"/>
+    <text x="90" y="936" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" letter-spacing="2" fill="#0e1116">BAMBOO CHARCOAL FABRIC</text>
+  </g>
+
+  <!-- title block -->
+  <text x="1120" y="1120" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="22" letter-spacing="3" fill="#0e1116" opacity="0.45">OVERTIME — STRIP SCHEMATIC</text>
+</svg>
