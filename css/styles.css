@@ -23,21 +23,7 @@
   --font-display: "Archivo", sans-serif;
   --font-serif: "Fraunces", Georgia, serif;
   --font-body: "Inter", sans-serif;
-  --font-logo: "Linux Biolinum", Optima, Candara, "Segoe UI", sans-serif;
-}
-
-/* Optima-style face for the wordmark and hero headline (free Optima alternative) */
-@font-face {
-  font-family: "Linux Biolinum";
-  src: url("../assets/fonts/LinBiolinum_R.otf") format("opentype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Linux Biolinum";
-  src: url("../assets/fonts/LinBiolinum_RB.otf") format("opentype");
-  font-weight: 700;
-  font-display: swap;
+  --font-logo: "Montserrat", "Segoe UI", sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -57,8 +43,8 @@ body {
 img { max-width: 100%; display: block; }
 
 h1, h2, h3, .display {
-  font-family: var(--font-serif);
-  font-weight: 600;
+  font-family: var(--font-logo);
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
   margin: 0 0 0.5em;
@@ -151,9 +137,9 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
 }
 .nav-logo {
   font-family: var(--font-logo);
-  font-weight: 700;
-  font-size: 1.55rem;
-  letter-spacing: 0.05em;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
   color: var(--text);
 }
 .nav-logo .bolt { color: var(--blue); }
@@ -248,12 +234,7 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
   animation: rise-in 0.7s ease-out both;
 }
-.hero h1.display-logo {
-  font-family: var(--font-logo);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  max-width: 16ch;
-}
+.hero h1.display-logo { max-width: 16ch; }
 .hero p { text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9); animation: rise-in 0.7s ease-out 0.15s both; }
 .hero-ctas { animation: rise-in 0.7s ease-out 0.3s both; }
 @keyframes rise-in {
