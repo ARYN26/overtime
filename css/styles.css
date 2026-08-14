@@ -23,6 +23,21 @@
   --font-display: "Archivo", sans-serif;
   --font-serif: "Fraunces", Georgia, serif;
   --font-body: "Inter", sans-serif;
+  --font-logo: "Linux Biolinum", Optima, Candara, "Segoe UI", sans-serif;
+}
+
+/* Optima-style face for the wordmark and hero headline (free Optima alternative) */
+@font-face {
+  font-family: "Linux Biolinum";
+  src: url("../assets/fonts/LinBiolinum_R.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Linux Biolinum";
+  src: url("../assets/fonts/LinBiolinum_RB.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -135,20 +150,13 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   gap: 24px;
 }
 .nav-logo {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 1.35rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-logo);
+  font-weight: 700;
+  font-size: 1.55rem;
+  letter-spacing: 0.05em;
   color: var(--text);
 }
 .nav-logo .bolt { color: var(--blue); }
-.nav-logo { display: inline-flex; align-items: center; }
-.nav-logo img { height: 32px; width: auto; display: block; }
-/* light frosted nav shows the dark wordmark; transparent-over-hero shows the white one */
-.nav .logo-light { display: none; }
-body.has-hero .nav:not(.scrolled) .logo-light { display: block; }
-body.has-hero .nav:not(.scrolled) .logo-dark { display: none; }
-.footer .nav-logo img { height: 26px; }
 .nav-links {
   display: flex;
   align-items: center;
@@ -239,6 +247,12 @@ body.has-hero .nav:not(.scrolled) .logo-dark { display: none; }
   max-width: 12ch;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.85);
   animation: rise-in 0.7s ease-out both;
+}
+.hero h1.display-logo {
+  font-family: var(--font-logo);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  max-width: 16ch;
 }
 .hero p { text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9); animation: rise-in 0.7s ease-out 0.15s both; }
 .hero-ctas { animation: rise-in 0.7s ease-out 0.3s both; }
@@ -347,18 +361,6 @@ body.has-hero .nav:not(.scrolled) .logo-dark { display: none; }
 }
 .step:hover img { transform: scale(1.05); }
 .steps.steps-4 { grid-template-columns: repeat(4, 1fr); }
-.step-fig {
-  aspect-ratio: 4/3;
-  width: 100%;
-  border-radius: var(--radius);
-  background: var(--bg-tint);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--blue);
-}
-.step-fig svg { width: 56px; height: 56px; }
 @media (max-width: 1024px) {
   .steps.steps-4 { grid-template-columns: repeat(2, 1fr); }
 }
