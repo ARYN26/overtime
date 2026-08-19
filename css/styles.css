@@ -121,7 +121,8 @@ body.has-hero .nav:not(.scrolled) {
   border-bottom-color: transparent;
   box-shadow: none;
 }
-body.has-hero .nav:not(.scrolled) .nav-logo { color: #fff; }
+body.has-hero .nav:not(.scrolled) .nav-logo .logo-light { display: block; }
+body.has-hero .nav:not(.scrolled) .nav-logo .logo-dark { display: none; }
 body.has-hero .nav:not(.scrolled) .nav-links a:not(.btn) { color: rgba(255, 255, 255, 0.88); }
 body.has-hero .nav:not(.scrolled) .nav-links a:not(.btn):hover { color: #fff; }
 body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
@@ -136,13 +137,13 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   gap: 24px;
 }
 .nav-logo {
-  font-family: var(--font-logo);
-  font-weight: 800;
-  font-size: 1.35rem;
-  letter-spacing: 0.04em;
-  color: var(--text);
+  display: flex;
+  align-items: center;
+  line-height: 0;
 }
-.nav-logo .bolt { color: var(--blue); }
+.nav-logo img { height: 36px; width: auto; display: block; }
+/* default nav is a light bar -> dark wordmark */
+.nav-logo .logo-light { display: none; }
 .nav-links {
   display: flex;
   align-items: center;
@@ -712,14 +713,15 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
   color: var(--dark-text-dim);
   font-size: 0.9rem;
 }
-.footer .nav-logo { color: var(--dark-text); }
+.footer .nav-logo .logo-light { display: block; }
+.footer .nav-logo .logo-dark { display: none; }
 .footer-inner {
   display: flex;
   justify-content: space-between;
   gap: 40px;
   flex-wrap: wrap;
 }
-.footer .nav-logo { font-size: 1.2rem; }
+.footer .nav-logo img { height: 30px; }
 .footer-links { display: flex; gap: 24px; list-style: none; padding: 0; margin: 0; flex-wrap: wrap; }
 .footer-links a { color: var(--dark-text-dim); }
 .footer-links a:hover { color: var(--dark-text); }
@@ -739,6 +741,7 @@ body.has-hero .nav:not(.scrolled) .nav-toggle { color: #fff; }
 /* ---------- responsive ---------- */
 @media (max-width: 860px) {
   .nav-toggle { display: block; }
+  .nav-logo img { height: 28px; }
   .nav-links {
     /* .nav's backdrop-filter makes it the containing block, so size explicitly */
     position: fixed;
