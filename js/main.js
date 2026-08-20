@@ -53,20 +53,29 @@ if (counters.length) {
   counters.forEach((el) => cio.observe(el));
 }
 
-// Product block: variant pills (price swap) + thumbnail gallery
+// Product block: supply-plan picker + thumbnail gallery
 const productCard = document.querySelector('.product-card');
 if (productCard) {
-  const pills = productCard.querySelectorAll('.variant-pills .pill');
-  const priceEl = productCard.querySelector('#prod-price');
-  const perEl = productCard.querySelector('#prod-per');
-  pills.forEach((pill) => {
-    pill.addEventListener('click', () => {
-      pills.forEach((p) => p.classList.remove('active'));
-      pill.classList.add('active');
-      if (priceEl && pill.dataset.price) priceEl.textContent = pill.dataset.price;
-      if (perEl && pill.dataset.per) perEl.textContent = pill.dataset.per;
-    });
-  });
+  // The radio inputs handle exclusivity; we only mirror it onto the row for styling.
+  // Browsers restore radio state across a reload, which can leave the restored
+  // input disagreeing with the .selected class baked into the markup — so the
+  // inputs are the source of truth and the class is derived from them, never the
+  // other way round. shopify.js re-fires 'change' after syncing prices and after
+  // moving off a sold-out plan, and that bubbles to here.
+  const picker = productCard.querySelector('.plan-picker');
+  if (picker) {
+    const options = picker.querySelectorAll('.purchase-option');
+    const sync = () => {
+      let checked = picker.querySelector('input[type="radio"]:checked');
+      if (!checked) {
+        checked = picker.querySelector('input[type="radio"]:not(:disabled)');
+        if (checked) checked.checked = true;
+      }
+      options.forEach((o) => o.classList.toggle('selected', !!checked && o.contains(checked)));
+    };
+    picker.addEventListener('change', sync);
+    sync();
+  }
 
   const mainImg = productCard.querySelector('#prod-main');
   const thumbs = productCard.querySelectorAll('.thumb');

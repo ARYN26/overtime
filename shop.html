@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/img/favicon.png">
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=16">
 </head>
 <body>
 
@@ -51,13 +51,40 @@
         <div class="product-info">
           <span class="kicker">Overtime Performance</span>
           <h1>Nasal Strips</h1>
-          <div class="variant-pills">
-            <button class="pill active" data-variant="Single Pack" data-price="$16.99" data-per="· 30 strips · one pack">One-time</button>
-            <button class="pill" data-variant="3-Month Supply" data-price="$42.99" data-per="· 3 packs · $14.33/pack">3-Month · Save 16%</button>
-            <button class="pill" data-variant="6-Month Supply" data-price="$79.99" data-per="· 6 packs · $13.33/pack">6-Month · Save 22%</button>
-            <button class="pill" data-variant="Annual Supply" data-price="$139.99" data-per="· 12 packs · $11.66/pack">Annual · Save 31%</button>
+          <div class="plan-picker">
+            <label class="purchase-option selected" data-variant="Single Pack" data-packs="1">
+              <input type="radio" name="plan" value="Single Pack" checked>
+              <span class="opt-body">
+                <span class="opt-name">One-time</span>
+                <span class="opt-sub">30 strips · <span class="opt-unit">$13.99</span> per pack</span>
+              </span>
+              <span class="opt-price">$13.99</span>
+            </label>
+            <label class="purchase-option" data-variant="3-Month Supply" data-packs="3">
+              <input type="radio" name="plan" value="3-Month Supply">
+              <span class="opt-body">
+                <span class="opt-name">3-Month Supply</span>
+                <span class="opt-sub">3 packs · <span class="opt-unit">$14.33</span> per pack</span>
+              </span>
+              <span class="opt-price">$42.99</span>
+            </label>
+            <label class="purchase-option" data-variant="6-Month Supply" data-packs="6">
+              <input type="radio" name="plan" value="6-Month Supply">
+              <span class="opt-body">
+                <span class="opt-name">6-Month Supply<span class="save-pill">Save 5%</span></span>
+                <span class="opt-sub">6 packs · <span class="opt-unit">$13.33</span> per pack</span>
+              </span>
+              <span class="opt-price">$79.99</span>
+            </label>
+            <label class="purchase-option" data-variant="Annual Supply" data-packs="12">
+              <input type="radio" name="plan" value="Annual Supply">
+              <span class="opt-body">
+                <span class="opt-name">Annual Supply<span class="save-pill">Save 17%</span></span>
+                <span class="opt-sub">12 packs · <span class="opt-unit">$11.67</span> per pack <span class="opt-tag">Best value</span></span>
+              </span>
+              <span class="opt-price">$139.99</span>
+            </label>
           </div>
-          <div class="price"><span id="prod-price">$16.99</span> <span class="per" id="prod-per">· 30 strips · one-time</span></div>
           <ul class="benefits-list">
             <li>38% more nasal airflow*</li>
             <li>8-hour sweat-resistant hold</li>
@@ -162,7 +189,7 @@
     <div class="container footer-fine">© 2026 Overtime Performance. All rights reserved.</div>
   </footer>
 
-  <script src="js/main.js?v=8"></script>
-  <script src="js/shopify.js?v=5"></script>
+  <script src="js/main.js?v=9"></script>
+  <script src="js/shopify.js?v=6"></script>
 </body>
 </html>

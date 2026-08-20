@@ -2,12 +2,15 @@
 //
 // Purchase options are prepaid supply bundles built with the Shopify Bundles
 // app, so selling a bundle automatically deducts the right number of single
-// packs from inventory. Each .variant-pills .pill carries data-variant, which
-// maps to a Shopify product below. Add to Cart creates a cart via the
+// packs from inventory. Each .plan-picker .purchase-option carries data-variant,
+// which maps to a Shopify product below. Add to Cart creates a cart via the
 // Storefront API and sends the buyer straight to the branded Shopify checkout.
 //
-// Pills whose product is missing or out of stock are disabled — the buyer can
-// never be charged a wrong amount or get dumped on the old-theme product page.
+// Prices, per-pack cost and the "save X%" badges are all rendered from the live
+// Storefront response rather than hardcoded, so they cannot drift away from what
+// the store actually charges. Plans whose product is missing or out of stock are
+// disabled — the buyer can never be charged a wrong amount or get dumped on the
+// old-theme product page.
 
 const SHOPIFY_CONFIG = {
   domain: 'y9t80a-dv.myshopify.com',
@@ -68,15 +71,76 @@ const SHOPIFY_CONFIG = {
       }
     }).catch((err) => console.error('Shopify product fetch failed:', offer.handle, err));
   })).then(() => {
+    // Savings are measured against what a single pack costs today, so a bundle
+    // only ever claims a discount it genuinely gives.
+    const single = offerByKey['Single Pack'];
+    const baseline = single && single.available ? single.price : null;
+
     document.querySelectorAll('.product-card').forEach((card) => {
-      card.querySelectorAll('.variant-pills .pill[data-variant]').forEach((pill) => {
-        const offer = offerByKey[pill.dataset.variant];
-        if (offer) pill.dataset.price = money(offer.price);
-        pill.disabled = !offer || !offer.available;
+      const options = [].slice.call(card.querySelectorAll('.plan-picker .purchase-option[data-variant]'));
+      if (!options.length) return;
+
+      let best = null;
+
+      options.forEach((opt) => {
+        const offer = offerByKey[opt.dataset.variant];
+        const input = opt.querySelector('input[type="radio"]');
+        const nameEl = opt.querySelector('.opt-name');
+        const subEl = opt.querySelector('.opt-sub');
+        const packs = Number(opt.dataset.packs) || 1;
+
+        // drop whatever the static fallback markup shipped with before recomputing
+        const staleBadge = nameEl && nameEl.querySelector('.save-pill');
+        if (staleBadge) staleBadge.remove();
+        const staleTag = subEl && subEl.querySelector('.opt-tag');
+        if (staleTag) staleTag.remove();
+
+        const usable = !!offer && offer.available;
+        if (input) input.disabled = !usable;
+        opt.classList.toggle('is-unavailable', !usable);
+        if (!offer) return;
+
+        const perPack = offer.price / packs;
+        opt.dataset.price = money(offer.price);
+        const priceEl = opt.querySelector('.opt-price');
+        if (priceEl) priceEl.textContent = money(offer.price);
+        const unitEl = opt.querySelector('.opt-unit');
+        if (unitEl) unitEl.textContent = money(perPack);
+
+        if (baseline && nameEl) {
+          const saving = Math.round((1 - perPack / baseline) * 100);
+          if (saving >= 1) {
+            const badge = document.createElement('span');
+            badge.className = 'save-pill';
+            badge.textContent = 'Save ' + saving + '%';
+            nameEl.appendChild(badge);
+          }
+        }
+
+        if (usable && (!best || perPack < best.perPack)) best = { opt: opt, perPack: perPack };
       });
-      const active = card.querySelector('.variant-pills .pill.active');
-      const priceEl = card.querySelector('#prod-price');
-      if (active && priceEl && active.dataset.price) priceEl.textContent = active.dataset.price;
+
+      // "Best value" only means something if that plan actually beats buying singles
+      if (best && baseline && Math.round((1 - best.perPack / baseline) * 100) >= 1) {
+        const subEl = best.opt.querySelector('.opt-sub');
+        if (subEl) {
+          const tag = document.createElement('span');
+          tag.className = 'opt-tag';
+          tag.textContent = 'Best value';
+          subEl.appendChild(document.createTextNode(' '));
+          subEl.appendChild(tag);
+        }
+      }
+
+      // if the preselected plan turned out to be unavailable, fall to the first that isn't
+      const checked = card.querySelector('.plan-picker input[type="radio"]:checked');
+      if (!checked || checked.disabled) {
+        const next = card.querySelector('.plan-picker input[type="radio"]:not(:disabled)');
+        if (next) {
+          next.checked = true;
+          next.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
     });
   });
 
@@ -89,8 +153,9 @@ const SHOPIFY_CONFIG = {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const card = btn.closest('.product-card');
-      const active = card ? card.querySelector('.variant-pills .pill.active') : null;
-      const wanted = active ? active.dataset.variant : 'Single Pack';
+      const checked = card ? card.querySelector('.plan-picker input[type="radio"]:checked') : null;
+      const row = checked ? checked.closest('.purchase-option') : null;
+      const wanted = row ? row.dataset.variant : 'Single Pack';
       const offer = offerByKey[wanted];
       if (!offer || !offer.available || btn.classList.contains('is-loading')) return;
 
